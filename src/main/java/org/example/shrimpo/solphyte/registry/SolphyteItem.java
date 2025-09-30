@@ -29,6 +29,8 @@ public class SolphyteItem {
             )));
 
     public static final RegistryObject<Item> EXAMPLE_BLOCK_ITEM = ITEMS.register("example_block", () -> new BlockItem(EXAMPLE_BLOCK.get(), new Item.Properties()));
-    public static final RegistryObject<Item> SOLAR_SHARD = ITEMS.register("solar_shard", () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
-
+    public static final RegistryObject<Item> SOLAR_SHARD = ITEMS.register("solar_shard", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
+    public static final RegistryObject<Item> HELIO_CELL = ITEMS.register("helio_cell", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
+    public static final RegistryObject<Item> SOLAR_DUST = ITEMS.register("solar_dust", () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
 }
+

@@ -1,4 +1,6 @@
 {
   "itemGroup.solphyte": "solphyte",
-  "item.solphyte.solar_shard": "Solar Shard"
+  "item.solphyte.solar_shard": "Solar Shard",
+  "item.solphyte.helio_cell": "Helio Cell",
+  "item.solphyte.solar_dust": "Solar Dust"
 }

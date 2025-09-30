@@ -18,6 +18,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
 
 import static org.example.shrimpo.solphyte.registry.SolphyteBlock.BLOCKS;
+import static org.example.shrimpo.solphyte.registry.SolphyteBlockEntity.BLOCK_ENTITY_TYPES;
 import static org.example.shrimpo.solphyte.registry.SolphyteCreativeTab.TABS;
 import static org.example.shrimpo.solphyte.registry.SolphyteItem.ITEMS;
 
@@ -49,6 +50,8 @@ public class Solphyte {
         ITEMS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         TABS.register(modEventBus);
+        // Register the Deferred Register to the mod event bus so block entities get registered
+        BLOCK_ENTITY_TYPES.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -93,6 +96,28 @@ public class Solphyte {
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+//            // Render layer for blocks with cutout textures
+//            event.enqueueWork(() -> {
+//                ItemBlockRenderTypes.setRenderLayer(SPYGLASS_STAND.get(), RenderType.cutout());
+//                BlockEntityRenderers.register(SolphyteBlockEntity.SPYGLASS_STAND.get(), SpyglassStandRenderer::new);
+//            });
+//        }
+//
+//        @SubscribeEvent
+//        public static void registerShaders(RegisterShadersEvent event) {
+//            try {
+//                // Start by using the vanilla translucent entity shader; later we can swap to a custom one in assets/solphyte/shaders/core
+//                var provider = event.getResourceProvider();
+//                var shader = new net.minecraft.client.renderer.ShaderInstance(provider,
+//                        new ResourceLocation(Solphyte.MODID, "solphyte_beam"),
+//                        com.mojang.blaze3d.vertex.DefaultVertexFormat.NEW_ENTITY);
+//                event.registerShader(shader, s -> {
+//                    ModRenderTypes.BEAM_SHADER = s;
+//                    LogUtils.getLogger().info("[Solphyte] Beam shader registered: {}", s.getName());
+//                });
+//            } catch (Exception e) {
+//                LogUtils.getLogger().error("Failed to register beam shader", e);
+//            }
         }
     }
 }

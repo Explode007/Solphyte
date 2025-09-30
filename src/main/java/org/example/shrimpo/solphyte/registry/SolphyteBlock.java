@@ -9,6 +9,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.example.shrimpo.solphyte.block.SpyglassStandBlock;
 
 import static org.example.shrimpo.solphyte.Solphyte.MODID;
 
@@ -23,5 +24,13 @@ public class SolphyteBlock {
                     .lightLevel(state -> 10)
                     .requiresCorrectToolForDrops()
                     .pushReaction(PushReaction.DESTROY)
+            ));
+
+    // Register the Spyglass Stand block. Simple non-special block; placement rules handled in event and survival check.
+    public static final RegistryObject<Block> SPYGLASS_STAND = BLOCKS.register("spyglass_stand",
+            () -> new SpyglassStandBlock(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)
+                    .mapColor(MapColor.COLOR_BROWN)
+                    .strength(1.5f, 3.0f)
+                    .noOcclusion()
             ));
 }
