@@ -3,6 +3,7 @@ package org.example.shrimpo.solphyte.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -44,7 +45,7 @@ public class SpyglassStandRenderer implements BlockEntityRenderer<SpyglassStandB
         float eased = easeInOut(progress);
 
         Vec3 start = SpyglassStandBlockEntity.beamStartLocal();
-        Vec3 end = SpyglassStandBlockEntity.beamEndLocal(be.getBlockPos(), facing);
+        Vec3 end = SpyglassStandBlockEntity.beamEndLocal(level, be.getBlockPos(), facing);
         Vec3 dir = end.subtract(start);
         double lengthFull = dir.length();
         if (lengthFull <= 1.0e-3) return;
@@ -150,6 +151,9 @@ public class SpyglassStandRenderer implements BlockEntityRenderer<SpyglassStandB
     }
 
     private static void emitEndParticles(Level level, net.minecraft.core.BlockPos pos, Vec3 startLocal, Vec3 endLocal, Vec3 dir, float halfEnd) {
+        // Don't emit particles while the game is paused (singleplayer pause keeps render running)
+        if (Minecraft.getInstance().isPaused()) return;
+
         // Compute world-space end position
         Vec3 worldEnd = new Vec3(pos.getX() + endLocal.x, pos.getY() + endLocal.y, pos.getZ() + endLocal.z);
         Vec3 ndir = dir.normalize();

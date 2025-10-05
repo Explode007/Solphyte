@@ -2,9 +2,19 @@ package org.example.shrimpo.solphyte;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -15,9 +25,11 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.example.shrimpo.solphyte.client.render.SpyglassStandRenderer;
 import org.slf4j.Logger;
 
 import static org.example.shrimpo.solphyte.registry.SolphyteBlock.BLOCKS;
+import static org.example.shrimpo.solphyte.registry.SolphyteBlock.SPYGLASS_STAND;
 import static org.example.shrimpo.solphyte.registry.SolphyteBlockEntity.BLOCK_ENTITY_TYPES;
 import static org.example.shrimpo.solphyte.registry.SolphyteCreativeTab.TABS;
 import static org.example.shrimpo.solphyte.registry.SolphyteItem.ITEMS;
@@ -30,13 +42,6 @@ public class Solphyte {
     public static final String MODID = "solphyte";
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
-    // Create a Deferred Register to hold Blocks which will all be registered under the "solphyte" namespace
-
-    // Create a Deferred Register to hold Items which will all be registered under the "solphyte" namespace
-
-    // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "solphyte" namespace
-
-
 
     public Solphyte() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -62,8 +67,8 @@ public class Solphyte {
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
-
-    private void commonSetup(final FMLCommonSetupEvent event) {
+    @SubscribeEvent
+    public void commonSetup(final FMLCommonSetupEvent event) {
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
         LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
@@ -75,17 +80,78 @@ public class Solphyte {
         Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
     }
 
-    // Add the example block item to the building blocks tab
-//    private void addCreative(BuildCreativeModeTabContentsEvent event) {
-//        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) event.accept(EXAMPLE_BLOCK_ITEM);
-//    }
-
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
     }
+
+    @SubscribeEvent
+    public void onEntityJoin(EntityJoinLevelEvent event) {
+        if (event.getEntity() instanceof ItemEntity item && !event.getLevel().isClientSide()) {
+            // Log the spawn for debugging so you can see when items appear
+            LOGGER.info("EntityJoinLevelEvent: item spawned {} at {} (clientSide={})", item.getItem().getItem(), item.blockPosition(), event.getLevel().isClientSide());
+            // Schedule a short tick on any luminthae block below the item so it will scan/process the item quickly
+            BlockPos below = item.blockPosition().below();
+            BlockState bs = event.getLevel().getBlockState(below);
+            if (bs.is(org.example.shrimpo.solphyte.registry.SolphyteBlock.LUMINTHAE_HYPHAE.get())) {
+                LOGGER.info("Scheduling luminthae tick at {} because item {} spawned above", below, item.getItem().getItem());
+                event.getLevel().scheduleTick(below, org.example.shrimpo.solphyte.registry.SolphyteBlock.LUMINTHAE_HYPHAE.get(), 2);
+            }
+        }
+    }
+
+    // Periodically scan chunks around players present in each world and schedule short ticks for luminthae blocks.
+    private int luminthaeScanCounter = 0;
+
+    @SubscribeEvent
+    public void onWorldTick(TickEvent.LevelTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        Level level = event.level;
+        if (level.isClientSide()) return;
+
+        luminthaeScanCounter++;
+        // run every ~100 ticks (5 seconds at 20 TPS)
+        if (luminthaeScanCounter % 100 != 0) return;
+
+        // radius in chunks around each player to scan
+        final int chunkRadius = 1; // 1 => 3x3 chunks around player
+        for (Player player : level.players()) {
+            BlockPos playerPos = player.blockPosition();
+            int playerChunkX = playerPos.getX() >> 4;
+            int playerChunkZ = playerPos.getZ() >> 4;
+
+            int minY = Math.max(level.getMinBuildHeight(), playerPos.getY() - 16);
+            int maxY = Math.min(level.getMaxBuildHeight(), playerPos.getY() + 16);
+
+            for (int cx = playerChunkX - chunkRadius; cx <= playerChunkX + chunkRadius; cx++) {
+                for (int cz = playerChunkZ - chunkRadius; cz <= playerChunkZ + chunkRadius; cz++) {
+                    int baseX = cx << 4;
+                    int baseZ = cz << 4;
+                    // Skip scanning if the chunk isn't loaded to avoid forcing chunk loads or extra work
+                    BlockPos chunkCenter = new BlockPos(baseX + 8, playerPos.getY(), baseZ + 8);
+                    if (!level.isLoaded(chunkCenter)) continue;
+                    for (int dx = 0; dx < 16; dx++) {
+                        for (int dz = 0; dz < 16; dz++) {
+                            for (int y = minY; y <= maxY; y++) {
+                                BlockPos p = new BlockPos(baseX + dx, y, baseZ + dz);
+                                BlockState bs = level.getBlockState(p);
+                                if (bs.is(org.example.shrimpo.solphyte.registry.SolphyteBlock.LUMINTHAE_HYPHAE.get())) {
+                                    level.scheduleTick(p, org.example.shrimpo.solphyte.registry.SolphyteBlock.LUMINTHAE_HYPHAE.get(), 2);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Add the example block item to the building blocks tab
+//    private void addCreative(BuildCreativeModeTabContentsEvent event) {
+//        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) event.accept(EXAMPLE_BLOCK_ITEM);
+//    }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -96,28 +162,11 @@ public class Solphyte {
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-//            // Render layer for blocks with cutout textures
-//            event.enqueueWork(() -> {
-//                ItemBlockRenderTypes.setRenderLayer(SPYGLASS_STAND.get(), RenderType.cutout());
-//                BlockEntityRenderers.register(SolphyteBlockEntity.SPYGLASS_STAND.get(), SpyglassStandRenderer::new);
-//            });
-//        }
-//
-//        @SubscribeEvent
-//        public static void registerShaders(RegisterShadersEvent event) {
-//            try {
-//                // Start by using the vanilla translucent entity shader; later we can swap to a custom one in assets/solphyte/shaders/core
-//                var provider = event.getResourceProvider();
-//                var shader = new net.minecraft.client.renderer.ShaderInstance(provider,
-//                        new ResourceLocation(Solphyte.MODID, "solphyte_beam"),
-//                        com.mojang.blaze3d.vertex.DefaultVertexFormat.NEW_ENTITY);
-//                event.registerShader(shader, s -> {
-//                    ModRenderTypes.BEAM_SHADER = s;
-//                    LogUtils.getLogger().info("[Solphyte] Beam shader registered: {}", s.getName());
-//                });
-//            } catch (Exception e) {
-//                LogUtils.getLogger().error("Failed to register beam shader", e);
-//            }
+            event.enqueueWork(() -> {
+                ItemBlockRenderTypes.setRenderLayer(SPYGLASS_STAND.get(), RenderType.cutout());
+                ItemBlockRenderTypes.setRenderLayer(org.example.shrimpo.solphyte.registry.SolphyteBlock.LUMINTHAE_HYPHAE.get(), RenderType.cutoutMipped());
+                BlockEntityRenderers.register(org.example.shrimpo.solphyte.registry.SolphyteBlockEntity.SPYGLASS_STAND.get(), SpyglassStandRenderer::new);
+            });
         }
     }
 }

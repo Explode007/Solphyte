@@ -83,7 +83,7 @@ public class SpyglassStandBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide && type == SolphyteBlockEntity.SPYGLASS_STAND.get()
+        return type == SolphyteBlockEntity.SPYGLASS_STAND.get()
                 ? (lvl, pos, st, be) -> SpyglassStandBlockEntity.tick(lvl, pos, st, (SpyglassStandBlockEntity) be)
                 : null;
     }

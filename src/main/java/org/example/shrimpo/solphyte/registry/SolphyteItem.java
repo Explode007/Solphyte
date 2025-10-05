@@ -9,6 +9,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.example.shrimpo.solphyte.item.LuminthaeSporesItem;
 
 import static org.example.shrimpo.solphyte.Solphyte.MODID;
 import static org.example.shrimpo.solphyte.registry.SolphyteBlock.EXAMPLE_BLOCK;
@@ -32,5 +33,9 @@ public class SolphyteItem {
     public static final RegistryObject<Item> SOLAR_SHARD = ITEMS.register("solar_shard", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
     public static final RegistryObject<Item> HELIO_CELL = ITEMS.register("helio_cell", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
     public static final RegistryObject<Item> SOLAR_DUST = ITEMS.register("solar_dust", () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
-}
+    public static final RegistryObject<Item> SOLAR_BLASTED_SAND = ITEMS.register("solar_blasted_sand", () -> new BlockItem(SolphyteBlock.SOLAR_BLASTED_SAND.get(), new Item.Properties().rarity(Rarity.UNCOMMON)));
+    public static final RegistryObject<Item> LUMINTHAE_HYPHAE = ITEMS.register("luminthae_hyphae", () -> new BlockItem(SolphyteBlock.LUMINTHAE_HYPHAE.get(), new Item.Properties().rarity(Rarity.RARE)));
 
+    // Luminthae spores item that seeds a dirt block into stage 1 Luminthae
+    public static final RegistryObject<Item> LUMINTHAE_SPORES = addToTab(ITEMS.register("luminthae_spores", () -> new LuminthaeSporesItem(new Item.Properties())));
+}

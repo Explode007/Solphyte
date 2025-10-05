@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "dusted=0": { "model": "solphyte:block/solar_blasted_sand" },
+    "dusted=1": { "model": "solphyte:block/solar_blasted_sand" },
+    "dusted=2": { "model": "solphyte:block/solar_blasted_sand" },
+    "dusted=3": { "model": "solphyte:block/solar_blasted_sand" }
+  }
+}

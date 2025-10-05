@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "stage=0": { "model": "solphyte:block/luminthae_hyphae_first" },
+    "stage=1": { "model": "solphyte:block/luminthae_hyphae_second" },
+    "stage=2": { "model": "solphyte:block/luminthae_hyphae_third" },
+    "stage=3": { "model": "solphyte:block/luminthae_hyphae_final" }
+  }
+}
