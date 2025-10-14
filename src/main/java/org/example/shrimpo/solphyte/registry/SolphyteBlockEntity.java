@@ -6,6 +6,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.example.shrimpo.solphyte.Solphyte;
 import org.example.shrimpo.solphyte.blockentity.SpyglassStandBlockEntity;
+import org.example.shrimpo.solphyte.blockentity.PhytoAlteratorBlockEntity;
 
 public class SolphyteBlockEntity {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Solphyte.MODID);
@@ -15,4 +16,11 @@ public class SolphyteBlockEntity {
             "spyglass_stand",
             () -> BlockEntityType.Builder.of(SpyglassStandBlockEntity::new, org.example.shrimpo.solphyte.registry.SolphyteBlock.SPYGLASS_STAND.get()).build(null)
     );
+
+    // Phyto-Alterator (two-block wide workstation, left half owns BE)
+    public static final RegistryObject<BlockEntityType<PhytoAlteratorBlockEntity>> PHYTO_ALTERATOR =
+            BLOCK_ENTITY_TYPES.register(
+                    "phyto_alterator",
+                    () -> BlockEntityType.Builder.of(PhytoAlteratorBlockEntity::new, SolphyteBlock.PHYTO_ALTERATOR.get()).build(null)
+            );
 }

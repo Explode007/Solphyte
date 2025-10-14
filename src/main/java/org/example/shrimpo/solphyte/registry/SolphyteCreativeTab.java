@@ -3,7 +3,6 @@ package org.example.shrimpo.solphyte.registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
@@ -39,10 +38,6 @@ public class SolphyteCreativeTab {
 
     @SubscribeEvent
     public static void buildContents(BuildCreativeModeTabContentsEvent event) {
-        if(event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-            event.getEntries().putAfter(Items.ACACIA_LOG.getDefaultInstance(), SolphyteItem.EXAMPLE_BLOCK_ITEM.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-        }
-
         if(event.getTab() == SOLPHYTE_TAB.get()) {
             event.accept(Items.CROSSBOW);
         }

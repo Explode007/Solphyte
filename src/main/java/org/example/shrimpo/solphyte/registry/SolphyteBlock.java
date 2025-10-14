@@ -4,30 +4,29 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.example.shrimpo.solphyte.block.LuminthaeHyphaeBlock;
 import org.example.shrimpo.solphyte.block.SolarBlastedSandBlock;
 import org.example.shrimpo.solphyte.block.SpyglassStandBlock;
+import org.example.shrimpo.solphyte.block.PhytoAlteratorBlock;
 
 import static org.example.shrimpo.solphyte.Solphyte.MODID;
 
 public class SolphyteBlock {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
 
-    public static final RegistryObject<Block> EXAMPLE_BLOCK = BLOCKS.register("example_block",
-            () -> new Block(BlockBehaviour.Properties.copy(Blocks.ANVIL)
-                    .mapColor(MapColor.COLOR_GREEN)
-                    .strength(5.0f, 17f)
-                    .instrument(NoteBlockInstrument.BANJO)
-                    .lightLevel(state -> 10)
-                    .requiresCorrectToolForDrops()
-                    .pushReaction(PushReaction.DESTROY)
-            ));
+//    public static final RegistryObject<Block> EXAMPLE_BLOCK = BLOCKS.register("example_block",
+//            () -> new Block(BlockBehaviour.Properties.copy(Blocks.ANVIL)
+//                    .mapColor(MapColor.COLOR_GREEN)
+//                    .strength(5.0f, 17f)
+//                    .instrument(NoteBlockInstrument.BANJO)
+//                    .lightLevel(state -> 10)
+//                    .requiresCorrectToolForDrops()
+//                    .pushReaction(PushReaction.DESTROY)
+//            ));
 
 
     public static final RegistryObject<Block> SPYGLASS_STAND = BLOCKS.register("spyglass_stand",
@@ -60,4 +59,11 @@ public class SolphyteBlock {
                     .randomTicks()
             ));
 
+    // Basic two-block wide workstation (left part holds BlockEntity). Placeholder properties similar to crafting table.
+    public static final RegistryObject<Block> PHYTO_ALTERATOR = BLOCKS.register("phyto_alterator",
+            () -> new PhytoAlteratorBlock(BlockBehaviour.Properties.copy(Blocks.CRAFTING_TABLE)
+                    .mapColor(MapColor.COLOR_GREEN)
+                    .strength(2.5f)
+                    .noOcclusion() // prevent x-ray gaps due to partial model
+            ));
 }

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "part=right,facing=north": { "model": "solphyte:block/phyto_alterator_half", "y": 90 },
+    "part=right,facing=east":  { "model": "solphyte:block/phyto_alterator_half", "y": 180 },
+    "part=right,facing=south": { "model": "solphyte:block/phyto_alterator_half", "y": 270 },
+    "part=right,facing=west":  { "model": "solphyte:block/phyto_alterator_half", "y": 0 },
+    "part=left,facing=north": { "model": "solphyte:block/phyto_alterator_half", "y": 270 },
+    "part=left,facing=east":  { "model": "solphyte:block/phyto_alterator_half", "y": 0 },
+    "part=left,facing=south": { "model": "solphyte:block/phyto_alterator_half", "y": 90 },
+    "part=left,facing=west":  { "model": "solphyte:block/phyto_alterator_half", "y": 180 }
+  }
+}
+

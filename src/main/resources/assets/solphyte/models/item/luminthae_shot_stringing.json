@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "solphyte:item/luminthae_shot_stringing"
+  }
+}
+

@@ -1,14 +1,13 @@
 package org.example.shrimpo.solphyte.block;
 
 import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -24,9 +23,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
+import org.example.shrimpo.solphyte.registry.SolphyteItem;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +96,6 @@ public class LuminthaeHyphaeBlock extends Block {
             }
         }
         // Always reschedule another tick so the block continuously polls for items that may land later.
-        // If we processed something, retry sooner to catch remaining items.
         if (anyProcessed) {
             level.scheduleTick(pos, this, 5);
         } else {
@@ -106,14 +103,14 @@ public class LuminthaeHyphaeBlock extends Block {
         }
     }
 
-    @Override
-    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        super.entityInside(state, level, pos, entity);
-        if (level.isClientSide) return;
-        if (!(entity instanceof ItemEntity itemEntity)) return;
-
-        processFeed(state, level, pos, itemEntity);
-    }
+//    @Override
+//    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+//        super.entityInside(state, level, pos, entity);
+//        if (level.isClientSide) return;
+//        if (!(entity instanceof ItemEntity itemEntity)) return;
+//
+//        processFeed(state, level, pos, itemEntity);
+//    }
 
     private void processFeed(BlockState state, Level level, BlockPos pos, ItemEntity itemEntity) {
         ItemStack stack = itemEntity.getItem();
@@ -127,7 +124,7 @@ public class LuminthaeHyphaeBlock extends Block {
         if (stage < 3) {
             level.setBlock(pos, state.setValue(STAGE, stage + 1), 3);
         } else {
-            // If this block is already fully-grown, prefer to grow nearby non-fully-grown luminthae (including up/down)
+            // If this block is already fully-grown, prefer to grow nearby non-fully-grown luminthae
             List<BlockPos> candidates = new ArrayList<>();
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 1; dy++) {
@@ -157,14 +154,12 @@ public class LuminthaeHyphaeBlock extends Block {
             itemEntity.setItem(stack);
         }
 
-        // Play a soft eat/swallow sound at the item's position
-        level.playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), SoundEvents.GENERIC_EAT, SoundSource.BLOCKS, 1.0f, 1.0f);
 
-        // Emit glow-squid-like particles at the consumed item's position (server-side)
+        // Emit glow-squid-like particles at the consumed item's position
         if (level instanceof ServerLevel server) {
-            // small burst centered on the item's position
             server.sendParticles(ParticleTypes.GLOW_SQUID_INK, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), 8, 0.15, 0.15, 0.15, 0.02);
         }
+        level.playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), SoundEvents.GENERIC_EAT, SoundSource.BLOCKS, 1.0f, 1.0f);
 
         // Spread to nearby blocks (1-block radius) only when fed
         RandomSource rand = level.getRandom();
@@ -188,21 +183,24 @@ public class LuminthaeHyphaeBlock extends Block {
     }
 
     private boolean isConvertable(BlockState state) {
-        // Convert dirt-like blocks (Dirt, Grass, Podzol, Mycelium) to stage 1 Luminthae Hyphae
-        return state.is(Blocks.DIRT) || state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.PODZOL) || state.is(Blocks.MYCELIUM);
-    }
+        List<Block> validBlocks = List.of(
+                Blocks.DIRT,
+                Blocks.GRASS_BLOCK,
+                Blocks.PODZOL,
+                Blocks.MYCELIUM
+        );
 
-    @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        // Disable manual right-click feeding; the block only responds to ItemEntities placed above it.
-        return InteractionResult.PASS;
+        for (Block b : validBlocks) {
+            if (state.is(b)) return true;
+        }
+
+        return false;
     }
 
     @Override
     public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        // Called when a player is about to destroy the block. If fully grown, pop the red mushroom.
         if (!level.isClientSide && state.getValue(STAGE) >= 3) {
-            popResource(level, pos, new ItemStack(Items.RED_MUSHROOM));
+            popResource(level, pos, new ItemStack(SolphyteItem.LUMINTHAE_FIBER.get()));
         }
         super.playerWillDestroy(level, pos, state, player);
     }
