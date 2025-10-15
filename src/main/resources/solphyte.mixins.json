@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "org.example.shrimpo.solphyte.mixin",
+  "package": "shrimpo.solphyte.mixin",
   "compatibilityLevel": "JAVA_8",
   "refmap": "solphyte.refmap.json",
   "mixins": [
