@@ -473,14 +473,29 @@ public final class VisionRenderer {
                     ? 1.0f
                     : Math.max(0f, 1.0f - ((pulseTicks - PULSE_VISIBLE_TICKS) / (float) PULSE_FADE_TICKS));
         }
-        if (pulseAlpha <= 0f && vignetteTicksRemaining <= 0) return;
+
+        // Brief pre-pulse fade-in during the last few ticks before VISIBLE
+        float prePulse = 0f;
+        if (pulseState == PulseState.OFF) {
+            final int preTicks = 8; // ~0.4s at 20 TPS
+            int remain = PULSE_OFF_TICKS - pulseTicks;
+            if (remain <= preTicks) {
+                float t = (preTicks - remain) / (float) preTicks; // 0->1
+                // ease-in curve for softness
+                prePulse = t * t;
+            }
+        }
+
+        if (pulseAlpha <= 0f && prePulse <= 0f && vignetteTicksRemaining <= 0) return;
 
         // Base orange (match world highlights)
         float orR = 1.00f, orG = 0.52f, orB = 0.05f;
 
         // Subtle extra breathing while visible
         float breathe = (float)(0.5 + 0.5 * Math.sin((waveTicks + e.getPartialTick()) * 0.08));
-        float alpha = 0.42f * pulseAlpha + 0.06f * breathe;
+        // Combine pre-pulse and pulse alpha; keep pre-pulse gentler
+        float base = Math.max(0.0f, 0.42f * pulseAlpha + 0.22f * prePulse);
+        float alpha = base + 0.06f * breathe;
         // Short fade-in at pulse start (uses the existing vignette timer)
         if (vignetteTicksRemaining > 0) {
             float fadeIn = Mth.clamp(1.0f - (vignetteTicksRemaining / 14.0f), 0f, 1f);

@@ -4,11 +4,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.common.Mod;
 import shrimpo.solphyte.Solphyte;
 import shrimpo.solphyte.Config;
 import shrimpo.solphyte.capability.StringGrapple;
 import shrimpo.solphyte.registry.SolphyteEffect;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
 
 @Mod.EventBusSubscriber(modid = Solphyte.MODID)
 public class GrappleEvents {
@@ -20,6 +22,11 @@ public class GrappleEvents {
         if (player.level().isClientSide()) return;
 
         player.getCapability(StringGrapple.CAPABILITY).ifPresent(cap -> {
+            // Fall damage grace: clear fall distance while within grace window
+            if (player.tickCount < cap.getFallGraceEndTick()) {
+                player.fallDistance = 0.0F;
+            }
+
             if (!cap.isActive()) {
                 // Safety: ensure gravity is restored when not grappling
                 restoreGravity(player);
@@ -27,7 +34,7 @@ public class GrappleEvents {
             }
 
             if (!player.hasEffect(SolphyteEffect.STRINGING.get())) {
-                endGrapple(player, cap, !cap.isUsingExistingNode());
+                endGrapple(player, cap);
                 return;
             }
 
@@ -39,7 +46,7 @@ public class GrappleEvents {
             Vec3 toAnchor = anchor.subtract(eye);
             double dist = toAnchor.length();
             if (dist < 0.5) {
-                endGrapple(player, cap, !cap.isUsingExistingNode());
+                endGrapple(player, cap);
                 return;
             }
 
@@ -117,14 +124,34 @@ public class GrappleEvents {
         });
     }
 
-    private static void endGrapple(Player player, StringGrapple cap, boolean applyCooldown) {
-        if (applyCooldown) {
-            int cd = Config.cooldownTicks();
-            cap.setNextAvailableTick(player.tickCount + cd);
+    // Cancel fall damage while grappling or during fall-grace
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onLivingFall(LivingFallEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide()) return; // server-side only
+        player.getCapability(StringGrapple.CAPABILITY).ifPresent(cap -> {
+            if (cap.isActive() || player.tickCount < cap.getFallGraceEndTick()) {
+                event.setCanceled(true);
+                event.setDistance(0.0F);
+                event.setDamageMultiplier(0.0F);
+                player.fallDistance = 0.0F;
+            }
+        });
+    }
+
+    private static void endGrapple(Player player, StringGrapple cap) {
+        // Apply cooldown only if the grapple did NOT use an existing node
+        if (!cap.getLastUsingExistingNode()) {
+            int target = player.tickCount + Config.cooldownTicks();
+            cap.setNextAvailableTick(Math.max(cap.getNextAvailableTick(), target));
         }
+        // Small fall damage grace (about 0.4s)
+        cap.setFallGraceEndTick(player.tickCount + 8);
+
         cap.setActive(false);
         cap.setUsingExistingNode(false);
         restoreGravity(player);
+        player.fallDistance = 0.0F;
     }
 
     private static void restoreGravity(Player player) {

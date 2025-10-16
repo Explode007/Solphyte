@@ -8,4 +8,3 @@ public class StringingEffect extends MobEffect {
         super(MobEffectCategory.BENEFICIAL, 0x70E1FF); // light cyan-ish color
     }
 }
-

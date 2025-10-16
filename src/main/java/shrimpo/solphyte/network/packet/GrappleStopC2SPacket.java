@@ -18,13 +18,22 @@ public class GrappleStopC2SPacket {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) return;
             player.getCapability(StringGrapple.CAPABILITY).ifPresent(cap -> {
-                if (cap.isActive() && !cap.isUsingExistingNode()) {
-                    cap.setNextAvailableTick(player.tickCount + Config.cooldownTicks());
+                boolean wasActive = cap.isActive();
+                if (wasActive) {
+                    // Apply cooldown ONLY if the grapple did NOT use an existing node
+                    if (!cap.getLastUsingExistingNode()) {
+                        int target = player.tickCount + Config.cooldownTicks();
+                        cap.setNextAvailableTick(Math.max(cap.getNextAvailableTick(), target));
+                    }
+                    // Always apply a brief fall damage grace
+                    cap.setFallGraceEndTick(player.tickCount + 8);
                 }
+
                 cap.setActive(false);
                 cap.setUsingExistingNode(false);
             });
-            // Immediately restore gravity
+            // Immediately soften fall for this tick
+            player.fallDistance = 0.0F;
             if (player.isNoGravity()) player.setNoGravity(false);
         });
         ctx.get().setPacketHandled(true);

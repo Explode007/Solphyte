@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 
 public class LuminthaeShotItem extends Item {
     private final Supplier<MobEffectInstance> effectSupplier;
+    private static final int FULL_DRAW_TICKS = 20; // must hold ~1s like a bow
 
     public LuminthaeShotItem(Properties properties, Supplier<MobEffectInstance> effectSupplier) {
         super(properties);
@@ -30,12 +31,13 @@ public class LuminthaeShotItem extends Item {
 
     @Override
     public int getUseDuration(ItemStack stack) {
-        return 24; // quick use
+        // Long duration like a bow; we'll consume on release
+        return 72000;
     }
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.DRINK; // placeholder animation
+        return UseAnim.BOW; // draw like a bow
     }
 
     @Override
@@ -45,7 +47,25 @@ public class LuminthaeShotItem extends Item {
     }
 
     @Override
-    public @NotNull ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
+    public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remainingUseDuration) {
+        // Auto-release when fully drawn; prevent early consumption in releaseUsing
+        int elapsed = this.getUseDuration(stack) - remainingUseDuration;
+        if (elapsed >= FULL_DRAW_TICKS) {
+            // Trigger release client-side; server will handle consumption in releaseUsing
+            if (level.isClientSide) {
+                entity.stopUsingItem();
+            }
+        }
+    }
+
+    @Override
+    public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
+        // Only consume/apply if fully drawn
+        int elapsed = this.getUseDuration(stack) - timeLeft;
+        if (elapsed < FULL_DRAW_TICKS) {
+            return; // ignore premature release
+        }
+        // Trigger on release (like bow). Apply effect and consume one.
         if (!level.isClientSide) {
             MobEffectInstance inst = effectSupplier.get();
             if (inst != null) {
@@ -61,7 +81,6 @@ public class LuminthaeShotItem extends Item {
             }
             level.playSound(null, entity.blockPosition(), SoundEvents.HONEY_DRINK, SoundSource.PLAYERS, 0.8f, 1.0f);
         }
-        return stack;
     }
 
     @Override

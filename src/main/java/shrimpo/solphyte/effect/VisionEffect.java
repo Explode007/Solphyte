@@ -8,4 +8,3 @@ public class VisionEffect extends MobEffect {
         super(MobEffectCategory.BENEFICIAL, 0xFF8C00); // dark orange color
     }
 }
-

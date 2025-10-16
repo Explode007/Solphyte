@@ -25,6 +25,8 @@ public class StringGrapple {
     private double ropeLength = 0.0; // current allowed distance from anchor (rope slack)
     private int nextAvailableTick = 0; // server tick when grapple can be used again
     private boolean usingExistingNode = false; // true if current grapple used a pre-existing node
+    private boolean lastUsingExistingNode = false; // snapshot at start, used when stopping to decide cooldown
+    private int fallGraceEndTick = 0; // until this server tick, reduce/clear fall damage after release
 
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
@@ -44,6 +46,12 @@ public class StringGrapple {
     public boolean isUsingExistingNode() { return usingExistingNode; }
     public void setUsingExistingNode(boolean v) { this.usingExistingNode = v; }
 
+    public boolean getLastUsingExistingNode() { return lastUsingExistingNode; }
+    public void setLastUsingExistingNode(boolean v) { this.lastUsingExistingNode = v; }
+
+    public int getFallGraceEndTick() { return fallGraceEndTick; }
+    public void setFallGraceEndTick(int t) { this.fallGraceEndTick = t; }
+
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.putBoolean("active", active);
@@ -54,6 +62,8 @@ public class StringGrapple {
         tag.putDouble("rope", ropeLength);
         tag.putInt("cooldown", nextAvailableTick);
         tag.putBoolean("usingExisting", usingExistingNode);
+        tag.putBoolean("lastUsingExisting", lastUsingExistingNode);
+        tag.putInt("fallGraceEnd", fallGraceEndTick);
         return tag;
     }
 
@@ -67,6 +77,8 @@ public class StringGrapple {
         ropeLength = tag.contains("rope") ? tag.getDouble("rope") : 0.0;
         nextAvailableTick = tag.getInt("cooldown");
         usingExistingNode = tag.getBoolean("usingExisting");
+        lastUsingExistingNode = tag.getBoolean("lastUsingExisting");
+        fallGraceEndTick = tag.getInt("fallGraceEnd");
     }
 
     public static class Provider implements ICapabilityProvider, ICapabilitySerializable<CompoundTag> {

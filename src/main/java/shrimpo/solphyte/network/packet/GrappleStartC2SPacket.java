@@ -60,9 +60,10 @@ public class GrappleStartC2SPacket {
                 }
             }
 
+            boolean aimedAtNode = bestNode != null;
             Vec3 anchor;
             boolean usingExisting;
-            if (bestNode != null) {
+            if (aimedAtNode) {
                 anchor = bestNode;
                 usingExisting = true;
             } else {
@@ -94,35 +95,39 @@ public class GrappleStartC2SPacket {
                 }
             }
 
-            // Ensure a node exists and is fresh at the anchor for 20s of magnetization
-            BlockPos nodePos = BlockPos.containing(anchor);
-            data.addOrRefresh(nodePos, player.serverLevel());
-            // Notify client to render the node locally for the full lifetime
-            SolphyteNetwork.sendTo(player, new GrappleNodeS2CPacket(nodePos, GrappleNodesData.getLifetimeTicks()));
-
             // Final variables for lambda capture
             final Vec3 fAnchor = anchor;
             final boolean fUsingExisting = usingExisting;
+            final boolean fAimedAtNode = aimedAtNode;
             final double fStartDist = fAnchor.subtract(eye).length();
             final double fRopeStart = Math.max(Config.grMinDistance, fStartDist + Config.grStartSlack);
+            final BlockPos nodePos = BlockPos.containing(fAnchor);
 
-            // Activate the grapple if not on cooldown (cooldown only enforced for new nodes)
+            // Activate the grapple if not on cooldown, unless we are aiming at an existing node (bypass)
             player.getCapability(StringGrapple.CAPABILITY).ifPresent(cap -> {
-                if (!fUsingExisting && player.tickCount < cap.getNextAvailableTick()) {
+                if (!fAimedAtNode && player.tickCount < cap.getNextAvailableTick()) {
                     int ticks = Math.max(0, cap.getNextAvailableTick() - player.tickCount);
                     int secs = (ticks + 19) / 20;
                     player.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.solphyte.grapple_cooldown", secs), true);
+                    // Do NOT spawn or refresh any nodes or visuals when blocked by cooldown
                     return;
                 }
+
+                // Only now that we're allowed to start do we sync visuals and (if applicable) refresh server node
+                if (fUsingExisting) {
+                    data.addOrRefresh(nodePos, player.serverLevel());
+                }
+                SolphyteNetwork.sendTo(player, new GrappleNodeS2CPacket(nodePos, GrappleNodesData.getLifetimeTicks()));
 
                 cap.setAnchor(fAnchor);
                 cap.setStartTick(player.tickCount);
                 cap.setRopeLength(fRopeStart);
                 cap.setUsingExistingNode(fUsingExisting);
+                cap.setLastUsingExistingNode(fUsingExisting);
                 cap.setActive(true);
                 if (!player.isNoGravity()) player.setNoGravity(true);
 
-                // Cooldown is applied on grapple end inside GrappleEvents for non-existing nodes
+                // Cooldown is applied on release packet only
             });
         });
         ctx.get().setPacketHandled(true);

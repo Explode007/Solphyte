@@ -2,7 +2,6 @@ package shrimpo.solphyte.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
@@ -11,7 +10,9 @@ import net.minecraftforge.fml.common.Mod;
 import shrimpo.solphyte.Solphyte;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = Solphyte.MODID, value = Dist.CLIENT)
 public class GrappleNodeClient {
@@ -22,21 +23,11 @@ public class GrappleNodeClient {
         if (mc.level == null) return;
         long now = mc.level.getGameTime();
         nodes.put(pos.immutable(), now + lifetimeTicks);
-        // Lighter creation burst client-side only
-        double cx = pos.getX() + 0.5;
-        double cy = pos.getY() + 0.5;
-        double cz = pos.getZ() + 0.5;
-        DustParticleOptions red = new DustParticleOptions(new org.joml.Vector3f(1.0f, 0.0f, 0.0f), 1.0f);
-        int seg = 8;
-        double r = 0.55;
-        for (int i = 0; i < seg; i++) {
-            double ang = i * (Math.PI * 2 / seg);
-            double px = cx + Math.cos(ang) * r;
-            double pz = cz + Math.sin(ang) * r;
-            mc.level.addParticle(red, px, cy, pz, 0, 0, 0);
-        }
-        // small core
-        mc.level.addParticle(red, cx, cy, cz, 0, 0, 0);
+        // Removed particle creation burst in favor of static cube rendering
+    }
+
+    public static Set<BlockPos> getNodesSnapshot() {
+        return new HashSet<>(nodes.keySet());
     }
 
     /**
@@ -90,28 +81,5 @@ public class GrappleNodeClient {
         // Purge expired
         nodes.entrySet().removeIf(e -> e.getValue() <= now);
         if (nodes.isEmpty()) return;
-
-        // Throttle continuous visuals to every other tick to reduce particle load
-        if ((now & 1L) == 1L) return;
-
-        // Simple red dust ring around each node
-        double phase = (now % 40) / 40.0 * (Math.PI * 2);
-        int ringCount = 8;
-        double ringRadius = 0.50;
-        DustParticleOptions red = new DustParticleOptions(new org.joml.Vector3f(1.0f, 0.0f, 0.0f), 1.0f);
-
-        for (BlockPos pos : nodes.keySet()) {
-            double cx = pos.getX() + 0.5;
-            double cy = pos.getY() + 0.5;
-            double cz = pos.getZ() + 0.5;
-            for (int i = 0; i < ringCount; i++) {
-                double ang = phase + (i * (Math.PI * 2 / ringCount));
-                double px = cx + Math.cos(ang) * ringRadius;
-                double pz = cz + Math.sin(ang) * ringRadius;
-                mc.level.addParticle(red, px, cy, pz, 0, 0, 0);
-            }
-            // occasional core sparkle
-            if ((now % 10) == 0) mc.level.addParticle(red, cx, cy, cz, 0, 0, 0);
-        }
     }
 }

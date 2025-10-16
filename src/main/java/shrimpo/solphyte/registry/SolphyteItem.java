@@ -52,7 +52,7 @@ public class SolphyteItem {
     public static final RegistryObject<Item> LUMINTHAE_SHOT_VISION = addToTab(ITEMS.register(
             "luminthae_shot_vision",
             () -> new LuminthaeShotItem(new Item.Properties().rarity(Rarity.UNCOMMON).stacksTo(16),
-                    () -> new net.minecraft.world.effect.MobEffectInstance(SolphyteEffect.VISION.get(), Config.grEffectSeconds * 20)))
+                    () -> new net.minecraft.world.effect.MobEffectInstance(SolphyteEffect.VISION.get(), Config.grEffectSeconds * 5)))
     );
 
     public static final RegistryObject<Item> LUMINTHAE_SHOT_EMPTY = addToTab(ITEMS.register(

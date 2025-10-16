@@ -44,7 +44,7 @@ public class Config {
     // Cooldown (seconds) after grappling to a NEW node; grappling to an existing node has no cooldown
     private static final ForgeConfigSpec.IntValue GR_COOLDOWN_SECONDS =
             BUILDER.comment("Cooldown (seconds) after grappling to a NEW node; grappling to an existing node has no cooldown")
-                    .defineInRange("cooldownSeconds", 6, 0, 300);
+                    .defineInRange("cooldownSeconds", 2, 0, 300);
     // Radius to snap the grapple start point to an existing node (meters)
     private static final ForgeConfigSpec.DoubleValue GR_SNAP_RADIUS = BUILDER
             .comment("Radius to snap the grapple start point to an existing node (meters)")
@@ -95,8 +95,8 @@ public class Config {
         grNodeHitRadius = GR_NODE_HIT_RADIUS.get();
     }
 
-    // Shared helper: server-side cooldown with sane fallback (6s)
+    // Cooldown in ticks from the config (no fallback)
     public static int cooldownTicks() {
-        return grCooldownTicks > 0 ? grCooldownTicks : 120;
+        return grCooldownTicks;
     }
 }
