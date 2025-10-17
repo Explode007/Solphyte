@@ -12,6 +12,7 @@ import net.minecraftforge.registries.RegistryObject;
 import shrimpo.solphyte.Config;
 import shrimpo.solphyte.item.LuminthaeShotItem;
 import shrimpo.solphyte.item.LuminthaeSporesItem;
+import shrimpo.solphyte.item.SolarVaporizerItem;
 
 import static shrimpo.solphyte.Solphyte.MODID;
 import static shrimpo.solphyte.registry.SolphyteCreativeTab.addToTab;
@@ -61,5 +62,13 @@ public class SolphyteItem {
 
     ));
 
-    public static final RegistryObject<Item> PHYTO_ALTERATOR = addToTab(ITEMS.register("phyto_alterator", () -> new BlockItem(SolphyteBlock.PHYTO_ALTERATOR.get(), new Item.Properties().rarity(Rarity.UNCOMMON))));
+    public static final RegistryObject<Item> PHYTO_ALTERATOR = addToTab(ITEMS.register(
+            "phyto_alterator",
+            () -> new BlockItem(SolphyteBlock.PHYTO_ALTERATOR.get(), new Item.Properties().rarity(Rarity.UNCOMMON))));
+
+    // Solar Vaporizer: beam miner/smelter that consumes Helio Cell as fuel
+    public static final RegistryObject<Item> SOLAR_VAPORIZER = addToTab(ITEMS.register(
+            "solar_vaporizer",
+            () -> new SolarVaporizerItem(new Item.Properties().rarity(Rarity.RARE).stacksTo(1))
+    ));
 }

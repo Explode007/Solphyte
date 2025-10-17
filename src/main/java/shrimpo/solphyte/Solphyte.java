@@ -27,6 +27,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import shrimpo.solphyte.client.render.GrappleNodeRenderer;
+import shrimpo.solphyte.client.render.SolarVaporizerRenderer;
 import shrimpo.solphyte.client.render.SpyglassStandRenderer;
 import shrimpo.solphyte.client.render.VisionRenderer;
 import shrimpo.solphyte.client.screen.PhytoAlteratorScreen;
@@ -175,6 +176,7 @@ public class Solphyte {
 
             MinecraftForge.EVENT_BUS.addListener(VisionRenderer::onRenderLevel);
             MinecraftForge.EVENT_BUS.addListener(GrappleNodeRenderer::onRenderLevel);
+            // SolarVaporizerRenderer is registered via @EventBusSubscriber
         }
     }
 }
