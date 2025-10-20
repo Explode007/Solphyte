@@ -2,6 +2,7 @@ package shrimpo.solphyte.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -12,7 +13,8 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -22,8 +24,11 @@ import org.jetbrains.annotations.Nullable;
 import shrimpo.solphyte.blockentity.PressBlockEntity;
 
 public class PressBlock extends BaseEntityBlock {
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
-    private static final VoxelShape OUTLINE = net.minecraft.world.level.block.Block.box(5, 0, 3, 13, 15, 16);
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+
+    // General cuboid like MicroscopeBlock: centered footprint and modest height
+    // Adjusted slightly larger than microscope to fit the press silhouette
+    private static final VoxelShape OUTLINE = Block.box(5, 0, 5, 11, 14, 11);
 
     public PressBlock(Properties props) {
         super(props);
@@ -31,10 +36,14 @@ public class PressBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(FACING); }
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext ctx) { return this.defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getOpposite()); }
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        return this.defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getOpposite());
+    }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
@@ -63,7 +72,7 @@ public class PressBlock extends BaseEntityBlock {
         if (!level.isClientSide && state.getBlock() != newState.getBlock()) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof PressBlockEntity pb) {
-                net.minecraft.world.Containers.dropContents(level, pos, pb.getItems());
+                Containers.dropContents(level, pos, pb.getItems());
             }
         }
         super.onRemove(state, level, pos, newState, isMoving);
@@ -74,7 +83,11 @@ public class PressBlock extends BaseEntityBlock {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof PressBlockEntity pb) {
-            NetworkHooks.openScreen((net.minecraft.server.level.ServerPlayer) player, pb, buf -> buf.writeBlockPos(pos));
+            // PressMenu reads two BlockPos values (for container resolution and be position), write twice
+            NetworkHooks.openScreen((net.minecraft.server.level.ServerPlayer) player, pb, buf -> {
+                buf.writeBlockPos(pos);
+                buf.writeBlockPos(pos);
+            });
             return InteractionResult.CONSUME;
         }
         return InteractionResult.PASS;

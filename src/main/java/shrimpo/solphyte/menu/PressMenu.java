@@ -5,17 +5,18 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import shrimpo.solphyte.blockentity.PressBlockEntity;
 import shrimpo.solphyte.registry.SolphyteBlock;
+import shrimpo.solphyte.registry.SolphyteItem;
 import shrimpo.solphyte.registry.SolphyteMenu;
 
 public class PressMenu extends AbstractContainerMenu {
     private final Container container;
     private final ContainerLevelAccess access;
+    private final BlockPos bePos;
 
     public PressMenu(int id, Inventory playerInv, FriendlyByteBuf buf) {
         this(id, playerInv, resolveContainer(playerInv, buf.readBlockPos()), buf.readBlockPos());
@@ -25,28 +26,41 @@ public class PressMenu extends AbstractContainerMenu {
         super(SolphyteMenu.PRESS.get(), id);
         this.container = container;
         this.access = ContainerLevelAccess.create(playerInv.player.level(), pos);
+        this.bePos = pos;
 
-        // Simple 2x2 for now
-        int startX = 62;
-        int startY = 17;
-        for (int row = 0; row < 2; row++) {
-            for (int col = 0; col < 2; col++) {
-                this.addSlot(new Slot(this.container, row * 2 + col, startX + col * 18, startY + row * 18));
+
+        // Main input (container 0)
+        this.addSlot(new Slot(this.container, 0, 48, 37) {
+            @Override public boolean mayPlace(ItemStack stack) {
+                return stack.is(SolphyteItem.LUMINTHAE_FIBER.get());
             }
-        }
+        });
+        // Petri dish input (container 1)
+        this.addSlot(new Slot(this.container, 1, 19, 37) {
+            @Override public boolean mayPlace(ItemStack stack) {
+                return stack.is(SolphyteItem.PETRI_DISH.get().asItem());
+            }
+        });
+        // Output (container 4)
+        this.addSlot(new Slot(this.container, 4, 48, 97) {
+            @Override public boolean mayPlace(ItemStack stack) { return false; }
+        });
 
         // Player inventory
-        int invY = 84;
+        int invX = 8;
+        int invY = 158;
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
-                this.addSlot(new Slot(playerInv, col + row * 9 + 9, 8 + col * 18, invY + row * 18));
+                this.addSlot(new Slot(playerInv, col + row * 9 + 9, invX + col * 18, invY + row * 18));
             }
         }
         int hotbarY = invY + 58;
         for (int col = 0; col < 9; ++col) {
-            this.addSlot(new Slot(playerInv, col, 8 + col * 18, hotbarY));
+            this.addSlot(new Slot(playerInv, col, invX + col * 18, hotbarY));
         }
     }
+
+    public BlockPos getBlockPos() { return bePos; }
 
     private static Container resolveContainer(Inventory inv, BlockPos pos) {
         if (inv.player.level() != null) {
@@ -55,7 +69,7 @@ public class PressMenu extends AbstractContainerMenu {
             }
         }
         return new Container() {
-            @Override public int getContainerSize() { return 4; }
+            @Override public int getContainerSize() { return 5; }
             @Override public boolean isEmpty() { return true; }
             @Override public ItemStack getItem(int i) { return ItemStack.EMPTY; }
             @Override public ItemStack removeItem(int i, int c) { return ItemStack.EMPTY; }
@@ -77,15 +91,16 @@ public class PressMenu extends AbstractContainerMenu {
         if (slot != null && slot.hasItem()) {
             ItemStack slotStack = slot.getItem();
             itemstack = slotStack.copy();
-            int beSlots = 4;
-            if (index < beSlots) {
-                if (!this.moveItemStackTo(slotStack, beSlots, this.slots.size(), true)) { return ItemStack.EMPTY; }
+            int beUiSlots = 3; // 0: main input, 1: petri input, 2: output (container 4)
+            if (index < beUiSlots) {
+                // from be to player
+                if (!this.moveItemStackTo(slotStack, beUiSlots, this.slots.size(), true)) { return ItemStack.EMPTY; }
             } else {
-                if (!this.moveItemStackTo(slotStack, 0, beSlots, false)) { return ItemStack.EMPTY; }
+                // from player to be inputs only (UI indices 0..1)
+                if (!this.moveItemStackTo(slotStack, 0, 2, false)) { return ItemStack.EMPTY; }
             }
             if (slotStack.isEmpty()) slot.set(ItemStack.EMPTY); else slot.setChanged();
         }
         return itemstack;
     }
 }
-

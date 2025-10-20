@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import shrimpo.solphyte.menu.PressMenu;
 import shrimpo.solphyte.registry.SolphyteBlockEntity;
+import shrimpo.solphyte.registry.SolphyteItem;
 
 public class PressBlockEntity extends BlockEntity implements Clearable, Container, MenuProvider {
     private final NonNullList<ItemStack> items = NonNullList.withSize(5, ItemStack.EMPTY);
@@ -49,5 +50,25 @@ public class PressBlockEntity extends BlockEntity implements Clearable, Containe
 
     @Override public Component getDisplayName() { return Component.translatable("menu.solphyte.press"); }
     @Override public AbstractContainerMenu createMenu(int id, Inventory inv, Player player) { return new PressMenu(id, inv, this, this.worldPosition); }
-}
 
+    // Called server-side when the client minigame completes successfully
+    public void onPressComplete(Player player) {
+        if (this.level == null || this.level.isClientSide) return;
+        ItemStack in = items.get(0);
+        if (in.isEmpty() || !in.is(SolphyteItem.LUMINTHAE_FIBER.get())) return;
+        ItemStack out = items.get(4);
+        ItemStack result = new ItemStack(SolphyteItem.LUMINTHAE_EXTRACT.get());
+
+        if (out.isEmpty()) {
+            items.set(4, result.copy());
+        } else if (ItemStack.isSameItemSameTags(out, result) && out.getCount() < out.getMaxStackSize()) {
+            out.grow(1);
+            items.set(4, out);
+        } else {
+            return; // cannot output, leave state unchanged
+        }
+        in.shrink(1);
+        items.set(0, in.isEmpty() ? ItemStack.EMPTY : in);
+        setChanged();
+    }
+}

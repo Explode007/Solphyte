@@ -10,6 +10,7 @@ import shrimpo.solphyte.network.packet.GrappleNodeS2CPacket;
 import shrimpo.solphyte.network.packet.GrappleStartC2SPacket;
 import shrimpo.solphyte.network.packet.GrappleStopC2SPacket;
 import shrimpo.solphyte.network.packet.MicroscopeFoundC2SPacket;
+import shrimpo.solphyte.network.packet.PressCompleteC2SPacket;
 
 public class SolphyteNetwork {
     private static final String PROTOCOL_VERSION = "1";
@@ -45,6 +46,11 @@ public class SolphyteNetwork {
                 MicroscopeFoundC2SPacket::encode,
                 MicroscopeFoundC2SPacket::decode,
                 MicroscopeFoundC2SPacket::handle);
+
+        CHANNEL.registerMessage(nextId(), PressCompleteC2SPacket.class,
+                PressCompleteC2SPacket::encode,
+                PressCompleteC2SPacket::decode,
+                PressCompleteC2SPacket::handle);
     }
 
     public static <MSG> void sendToServer(MSG msg) {

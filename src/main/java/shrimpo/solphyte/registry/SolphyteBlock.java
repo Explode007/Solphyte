@@ -27,10 +27,10 @@ public class SolphyteBlock {
                     .noOcclusion()));
 
     public static final RegistryObject<Block> LUMINTHAE_HYPHAE = BLOCKS.register("luminthae_hyphae",
-            () -> new LuminthaeHyphaeBlock(BlockBehaviour.Properties.copy(Blocks.DIRT)
-                    .mapColor(MapColor.COLOR_BLUE)
-                    .sound(SoundType.SHROOMLIGHT)
-                    .randomTicks()));
+        () -> new LuminthaeHyphaeBlock(BlockBehaviour.Properties.copy(Blocks.DIRT)
+                .mapColor(MapColor.COLOR_BLUE)
+                .sound(SoundType.SHROOMLIGHT)
+                .randomTicks()));
 
     public static final RegistryObject<Block> PHYTO_ALTERATOR = BLOCKS.register("phyto_alterator",
             () -> new PhytoAlteratorBlock(BlockBehaviour.Properties.copy(Blocks.CRAFTING_TABLE)
@@ -46,7 +46,7 @@ public class SolphyteBlock {
                     .noCollission()));
 
     public static final RegistryObject<Block> PRESS = BLOCKS.register("press",
-            () -> new PressBlock(BlockBehaviour.Properties.copy(Blocks.CRAFTING_TABLE)
+            () -> new shrimpo.solphyte.block.PressBlock(BlockBehaviour.Properties.copy(Blocks.CRAFTING_TABLE)
                     .mapColor(MapColor.COLOR_BROWN)
                     .strength(2.5f)
                     .noOcclusion()
