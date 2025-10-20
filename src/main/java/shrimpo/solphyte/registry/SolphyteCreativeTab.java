@@ -24,7 +24,7 @@ public class SolphyteCreativeTab {
     public static final RegistryObject<CreativeModeTab> SOLPHYTE_TAB = TABS.register("solphyte",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.solphyte"))
-                    .icon(SolphyteItem.EXAMPLE_ITEM.get()::getDefaultInstance)
+                    .icon(SolphyteItem.SOLAR_SHARD.get()::getDefaultInstance)
                     .displayItems((displayParams, output) ->
                             SOLPHYTE_TAB_ITEMS.forEach(itemLike -> output.accept(itemLike.get())))
                     .withSearchBar()
