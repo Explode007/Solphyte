@@ -1,0 +1,16 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_piston": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [ { "items": [ "minecraft:piston" ] } ]
+      }
+    }
+  },
+  "requirements": [ [ "has_piston" ] ],
+  "rewards": {
+    "recipes": [ "solphyte:press" ]
+  }
+}
+

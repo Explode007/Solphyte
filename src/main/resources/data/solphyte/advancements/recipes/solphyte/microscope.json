@@ -1,0 +1,16 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_spyglass": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [ { "items": [ "minecraft:spyglass" ] } ]
+      }
+    }
+  },
+  "requirements": [ [ "has_spyglass" ] ],
+  "rewards": {
+    "recipes": [ "solphyte:microscope" ]
+  }
+}
+

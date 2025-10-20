@@ -1,8 +1,8 @@
 {
 	"variants": {
-		"facing=north": { "model": "solphyte:block/press" },
-		"facing=east":  { "model": "solphyte:block/press", "y": 90 },
-		"facing=south": { "model": "solphyte:block/press", "y": 180 },
-		"facing=west":  { "model": "solphyte:block/press", "y": 270 }
+		"facing=north": { "model": "solphyte:block/press", "y": 180 },
+		"facing=east":  { "model": "solphyte:block/press", "y": 270 },
+		"facing=south": { "model": "solphyte:block/press" },
+		"facing=west":  { "model": "solphyte:block/press", "y": 90 }
 	}
 }

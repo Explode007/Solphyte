@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " G ",
+    "ICI",
+    "BBB"
+  ],
+  "key": {
+    "G": { "item": "minecraft:spyglass" },
+    "I": { "item": "minecraft:iron_ingot" },
+    "C": { "item": "minecraft:copper_ingot" },
+    "B": { "item": "minecraft:iron_block" }
+  },
+  "result": {
+    "item": "solphyte:microscope",
+    "count": 1
+  }
+}
+
