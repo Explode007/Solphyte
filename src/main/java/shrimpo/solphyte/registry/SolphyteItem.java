@@ -1,8 +1,5 @@
 package shrimpo.solphyte.registry;
 
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
@@ -10,29 +7,13 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import shrimpo.solphyte.Config;
-import shrimpo.solphyte.item.LuminthaeShotItem;
-import shrimpo.solphyte.item.LuminthaeSporesItem;
-import shrimpo.solphyte.item.MutatedSeedsItem;
-import shrimpo.solphyte.item.SolarVaporizerItem;
-import shrimpo.solphyte.item.PlantSampleItem;
+import shrimpo.solphyte.item.*;
 
 import static shrimpo.solphyte.Solphyte.MODID;
 import static shrimpo.solphyte.registry.SolphyteCreativeTab.addToTab;
 
 public class SolphyteItem {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-
-    public static final RegistryObject<Item> EXAMPLE_ITEM = addToTab(ITEMS.register("example_item",
-            () -> new Item(new Item.Properties()
-                    .stacksTo(16)
-                    .food(new FoodProperties.Builder()
-                            .nutrition(5)
-                            .saturationMod(0.2f)
-                            .effect(() -> new MobEffectInstance(MobEffects.ABSORPTION, 200, 2), 1f)
-                            .build())
-                    .rarity(Rarity.EPIC)
-            )));
-
 
     public static final RegistryObject<Item> SOLAR_SHARD = addToTab(ITEMS.register("solar_shard", () -> new Item(new Item.Properties().rarity(Rarity.RARE))));
     public static final RegistryObject<Item> HELIO_CELL = addToTab(ITEMS.register("helio_cell", () -> new Item(new Item.Properties().rarity(Rarity.RARE))));
