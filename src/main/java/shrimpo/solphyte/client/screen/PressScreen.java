@@ -24,7 +24,7 @@ public class PressScreen extends AbstractContainerScreen<PressMenu> {
     private long nextPromptChangeMs = 0L; // acts as "prompt ends at"
 
     // Timing helpers
-    private static final long SWAP_IMMUNITY_MS = 300L;  // grace window after swap
+    private static final long SWAP_IMMUNITY_MS = 500L;  // grace window after swap (was 300ms)
     private static final long SWAP_FLASH_MS = 130L;      // quick bright flash at swap
     private static final long PRE_SWAP_WARN_MS = 400L;  // visual warning before swap
     private long swapImmunityUntilMs = 0L;
@@ -211,14 +211,19 @@ public class PressScreen extends AbstractContainerScreen<PressMenu> {
         // Only allow progress if the mouse is inside the intended minigame area and not over a slot, and valid input present
         boolean overSlot = this.hoveredSlot != null;
 
-        boolean hasValidInput = false;
+        boolean hasFiberInput = false;
         if (!this.menu.slots.isEmpty() && this.menu.slots.get(0) != null && this.menu.slots.get(0).hasItem()) {
-            hasValidInput = this.menu.slots.get(0).getItem().is(SolphyteItem.LUMINTHAE_FIBER.get());
+            hasFiberInput = this.menu.slots.get(0).getItem().is(SolphyteItem.LUMINTHAE_FIBER.get());
         }
+        boolean hasDishInput = false;
+        if (this.menu.slots.size() > 1 && this.menu.slots.get(1) != null && this.menu.slots.get(1).hasItem()) {
+            hasDishInput = this.menu.slots.get(1).getItem().is(SolphyteItem.PETRI_DISH.get());
+        }
+        boolean hasValidInputs = hasFiberInput && hasDishInput;
         boolean outputOccupied = this.menu.slots.size() > 2 && this.menu.slots.get(2) != null && this.menu.slots.get(2).hasItem();
 
         // Apply wrong-input punishment if actively pressing wrong controls (but not during immunity)
-        if (!inImmunity && hasValidInput && !outputOccupied && mouseInside && !overSlot && wrongActive) {
+        if (!inImmunity && hasValidInputs && !outputOccupied && mouseInside && !overSlot && wrongActive) {
             // cooldown to avoid spam while holding
             if (now - lastPenaltyMs >= 250L) {
                 progress = Math.max(0f, progress - 0.18f);
@@ -237,13 +242,13 @@ public class PressScreen extends AbstractContainerScreen<PressMenu> {
         float rateUp = 0.0125f;
         float rateDown = 0.0060f;
         // Prevent progress during immunity to give adjust buffer; allow decay but no punishment above
-        if (!inImmunity && hasValidInput && !outputOccupied && meets && mouseInside && !overSlot) {
+        if (!inImmunity && hasValidInputs && !outputOccupied && meets && mouseInside && !overSlot) {
             progress = Math.min(1f, progress + rateUp);
         } else {
             progress = Math.max(0f, progress - rateDown);
         }
 
-        if (progress >= 1f && hasValidInput && !outputOccupied) {
+        if (progress >= 1f && hasValidInputs && !outputOccupied) {
             SolphyteNetwork.sendToServer(new PressCompleteC2SPacket(this.menu.getBlockPos()));
             progress = 0f;
             // Notify server to complete the press action at this block position

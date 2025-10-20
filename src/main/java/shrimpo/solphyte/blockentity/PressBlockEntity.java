@@ -54,8 +54,11 @@ public class PressBlockEntity extends BlockEntity implements Clearable, Containe
     // Called server-side when the client minigame completes successfully
     public void onPressComplete(Player player) {
         if (this.level == null || this.level.isClientSide) return;
-        ItemStack in = items.get(0);
-        if (in.isEmpty() || !in.is(SolphyteItem.LUMINTHAE_FIBER.get())) return;
+        ItemStack fiber = items.get(0);
+        ItemStack dish = items.get(1);
+        // Require both fiber and petri dish present
+        if (fiber.isEmpty() || !fiber.is(SolphyteItem.LUMINTHAE_FIBER.get())) return;
+        if (dish.isEmpty() || !dish.is(SolphyteItem.PETRI_DISH.get())) return;
         ItemStack out = items.get(4);
         ItemStack result = new ItemStack(SolphyteItem.LUMINTHAE_EXTRACT.get());
 
@@ -67,8 +70,11 @@ public class PressBlockEntity extends BlockEntity implements Clearable, Containe
         } else {
             return; // cannot output, leave state unchanged
         }
-        in.shrink(1);
-        items.set(0, in.isEmpty() ? ItemStack.EMPTY : in);
+        // consume inputs
+        fiber.shrink(1);
+        dish.shrink(1);
+        items.set(0, fiber.isEmpty() ? ItemStack.EMPTY : fiber);
+        items.set(1, dish.isEmpty() ? ItemStack.EMPTY : dish);
         setChanged();
     }
 }
