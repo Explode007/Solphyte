@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "G G",
+    "GGG"
+  ],
+  "key": {
+    "G": { "item": "minecraft:glass_pane" }
+  },
+  "result": {
+    "item": "solphyte:petri_dish",
+    "count": 1
+  }
+}
+

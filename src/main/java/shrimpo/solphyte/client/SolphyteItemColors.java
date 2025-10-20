@@ -134,7 +134,7 @@ public class SolphyteItemColors {
                             base = ((br * tr) / 255 << 16) | ((bg * tg) / 255 << 8) | ((bb * tb) / 255);
                         }
                     }
-                    return brightenColor(base, 0.2f);
+                    return brightenColor(base, 0.4f);
                 }
             }
 
@@ -179,7 +179,7 @@ public class SolphyteItemColors {
                 int tr = (tint >> 16) & 0xFF, tg = (tint >> 8) & 0xFF, tb = tint & 0xFF;
                 base = ((br * tr) / 255 << 16) | ((bg * tg) / 255 << 8) | ((bb * tb) / 255);
             }
-            return brightenColor(base, 0.2f);
+            return brightenColor(base, 0.4f);
         } catch (Throwable t) {
             return null;
         }
