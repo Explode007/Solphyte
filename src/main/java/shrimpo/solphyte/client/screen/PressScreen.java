@@ -175,7 +175,7 @@ public class PressScreen extends AbstractContainerScreen<PressMenu> {
     }
     @Override
     protected void renderLabels(GuiGraphics gfx, int mouseX, int mouseY) {
-        gfx.drawString(this.font, this.title, BG_U + 4, BG_V + 2, 0xFF7777, false);
+        gfx.drawString(this.font, this.title, BG_U + 4, BG_V + 2, 0x404040, false);
     }
 
     @Override

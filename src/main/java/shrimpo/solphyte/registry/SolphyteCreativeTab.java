@@ -21,7 +21,7 @@ public class SolphyteCreativeTab {
 
     public static final List<Supplier<? extends ItemLike>> SOLPHYTE_TAB_ITEMS = new ArrayList<>();
 
-    public static final RegistryObject<CreativeModeTab> SOLPHYTE_TAB = TABS.register("Solphyte",
+    public static final RegistryObject<CreativeModeTab> SOLPHYTE_TAB = TABS.register("solphyte",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.solphyte"))
                     .icon(SolphyteItem.SOLAR_SHARD.get()::getDefaultInstance)
