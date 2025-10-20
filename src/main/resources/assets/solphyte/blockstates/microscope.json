@@ -1,0 +1,8 @@
+{
+	"variants": {
+		"facing=north": { "model": "solphyte:block/microscope"},
+		"facing=east":  { "model": "solphyte:block/microscope", "y": 90 },
+		"facing=south": { "model": "solphyte:block/microscope", "y": 180 },
+		"facing=west":  { "model": "solphyte:block/microscope", "y": 270 }
+	}
+}

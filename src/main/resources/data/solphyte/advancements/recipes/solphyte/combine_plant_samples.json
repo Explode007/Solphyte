@@ -1,0 +1,16 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_plant_sample": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [ { "items": [ "solphyte:plant_sample" ] } ]
+      }
+    }
+  },
+  "requirements": [ [ "has_plant_sample" ] ],
+  "rewards": {
+    "recipes": [ "solphyte:combine_plant_samples" ]
+  }
+}
+

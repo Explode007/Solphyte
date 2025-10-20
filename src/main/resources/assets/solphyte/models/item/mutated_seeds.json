@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "solphyte:item/mutated_seeds_left_mask",
+    "layer1": "solphyte:item/mutated_seeds_right_mask"
+  }
+}

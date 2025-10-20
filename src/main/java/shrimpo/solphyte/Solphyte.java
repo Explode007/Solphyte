@@ -2,10 +2,10 @@ package shrimpo.solphyte;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -26,24 +26,25 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.slf4j.Logger;
+import shrimpo.solphyte.block.MutatedCropBlock;
 import shrimpo.solphyte.client.render.GrappleNodeRenderer;
-import shrimpo.solphyte.client.render.SolarVaporizerRenderer;
 import shrimpo.solphyte.client.render.SpyglassStandRenderer;
 import shrimpo.solphyte.client.render.VisionRenderer;
 import shrimpo.solphyte.client.screen.PhytoAlteratorScreen;
+import shrimpo.solphyte.client.screen.MicroscopeScreen;
+import shrimpo.solphyte.client.screen.PressScreen;
 import shrimpo.solphyte.network.SolphyteNetwork;
 import shrimpo.solphyte.registry.SolphyteBlockEntity;
 import shrimpo.solphyte.registry.SolphyteMenu;
-import org.slf4j.Logger;
+import shrimpo.solphyte.registry.SolphyteRecipeSerializers;
 
-import static shrimpo.solphyte.registry.SolphyteBlock.BLOCKS;
-import static shrimpo.solphyte.registry.SolphyteBlock.SPYGLASS_STAND;
-import static shrimpo.solphyte.registry.SolphyteBlock.LUMINTHAE_HYPHAE;
+import static shrimpo.solphyte.registry.SolphyteBlock.*;
 import static shrimpo.solphyte.registry.SolphyteBlockEntity.BLOCK_ENTITY_TYPES;
 import static shrimpo.solphyte.registry.SolphyteCreativeTab.TABS;
+import static shrimpo.solphyte.registry.SolphyteEffect.EFFECTS;
 import static shrimpo.solphyte.registry.SolphyteItem.ITEMS;
 import static shrimpo.solphyte.registry.SolphyteMenu.MENUS;
-import static shrimpo.solphyte.registry.SolphyteEffect.EFFECTS;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(Solphyte.MODID)
@@ -72,6 +73,8 @@ public class Solphyte {
         MENUS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so effects get registered
         EFFECTS.register(modEventBus);
+        // Register recipe serializers
+        SolphyteRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -82,6 +85,7 @@ public class Solphyte {
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
+
     @SubscribeEvent
     public void commonSetup(final FMLCommonSetupEvent event) {
         // Some common setup code
@@ -169,8 +173,20 @@ public class Solphyte {
             event.enqueueWork(() -> {
                 ItemBlockRenderTypes.setRenderLayer(SPYGLASS_STAND.get(), RenderType.cutout());
                 ItemBlockRenderTypes.setRenderLayer(LUMINTHAE_HYPHAE.get(), RenderType.cutoutMipped());
+                // New workstation layers
+                ItemBlockRenderTypes.setRenderLayer(MICROSCOPE.get(), RenderType.cutout());
+                ItemBlockRenderTypes.setRenderLayer(PRESS.get(), RenderType.cutout());
+                // Set cutout for all mutated crops
+                ForgeRegistries.BLOCKS.getValues().forEach(b -> {
+                    if (b instanceof MutatedCropBlock && ForgeRegistries.BLOCKS.getKey(b).getNamespace().equals(MODID)) {
+                        ItemBlockRenderTypes.setRenderLayer(b, RenderType.cutout());
+                    }
+                });
                 BlockEntityRenderers.register(SolphyteBlockEntity.SPYGLASS_STAND.get(), SpyglassStandRenderer::new);
                 MenuScreens.register(SolphyteMenu.PHYTO_ALTERATOR.get(), PhytoAlteratorScreen::new);
+                // New screens
+                MenuScreens.register(SolphyteMenu.MICROSCOPE.get(), MicroscopeScreen::new);
+                MenuScreens.register(SolphyteMenu.PRESS.get(), PressScreen::new);
             });
 
 

@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#forge:seeds",
+    "minecraft:sugar_cane",
+    "minecraft:cactus",
+    "minecraft:nether_wart"
+  ]
+}
+

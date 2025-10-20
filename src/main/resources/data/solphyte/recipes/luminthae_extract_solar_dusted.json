@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "solphyte:luminthae_extract" },
+    { "item": "solphyte:solar_dust" }
+  ],
+  "result": { "item": "solphyte:luminthae_extract_solar_dusted", "count": 1 }
+}
+

@@ -12,7 +12,9 @@ import net.minecraftforge.registries.RegistryObject;
 import shrimpo.solphyte.Config;
 import shrimpo.solphyte.item.LuminthaeShotItem;
 import shrimpo.solphyte.item.LuminthaeSporesItem;
+import shrimpo.solphyte.item.MutatedSeedsItem;
 import shrimpo.solphyte.item.SolarVaporizerItem;
+import shrimpo.solphyte.item.PlantSampleItem;
 
 import static shrimpo.solphyte.Solphyte.MODID;
 import static shrimpo.solphyte.registry.SolphyteCreativeTab.addToTab;
@@ -42,6 +44,10 @@ public class SolphyteItem {
     public static final RegistryObject<Item> LUMINTHAE_SPORES = addToTab(ITEMS.register("luminthae_spores", () -> new LuminthaeSporesItem(new Item.Properties())));
     public static final RegistryObject<Item> LUMINTHAE_FIBER= addToTab(ITEMS.register("luminthae_fiber", () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON))));
 
+    // New extract items
+    public static final RegistryObject<Item> LUMINTHAE_EXTRACT = addToTab(ITEMS.register("luminthae_extract", () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON))));
+    public static final RegistryObject<Item> LUMINTHAE_EXTRACT_SOLAR_DUSTED = addToTab(ITEMS.register("luminthae_extract_solar_dusted", () -> new Item(new Item.Properties().rarity(Rarity.RARE))));
+
     // Luminthae Shot: Stringing (applies custom Stringing effect for 20 minutes)
     public static final RegistryObject<Item> LUMINTHAE_SHOT_STRINGING = addToTab(ITEMS.register(
             "luminthae_shot_stringing",
@@ -66,9 +72,34 @@ public class SolphyteItem {
             "phyto_alterator",
             () -> new BlockItem(SolphyteBlock.PHYTO_ALTERATOR.get(), new Item.Properties().rarity(Rarity.UNCOMMON))));
 
+    // New block items
+    public static final RegistryObject<Item> MICROSCOPE = addToTab(ITEMS.register(
+            "microscope",
+            () -> new BlockItem(SolphyteBlock.MICROSCOPE.get(), new Item.Properties().rarity(Rarity.UNCOMMON))));
+
+    public static final RegistryObject<Item> PRESS = addToTab(ITEMS.register(
+            "press",
+            () -> new BlockItem(SolphyteBlock.PRESS.get(), new Item.Properties().rarity(Rarity.UNCOMMON))));
+
     // Solar Vaporizer: beam miner/smelter that consumes Helio Cell as fuel
     public static final RegistryObject<Item> SOLAR_VAPORIZER = addToTab(ITEMS.register(
             "solar_vaporizer",
             () -> new SolarVaporizerItem(new Item.Properties().rarity(Rarity.RARE).stacksTo(1))
     ));
+
+    // Single NBT-driven mutated seeds
+    public static final RegistryObject<Item> MUTATED_SEEDS = addToTab(ITEMS.register(
+            "mutated_seeds",
+            () -> new MutatedSeedsItem(SolphyteBlock.MUTATED_CROP, new Item.Properties())
+    ));
+
+    // Basic items
+    public static final RegistryObject<Item> PETRI_DISH = addToTab(ITEMS.register(
+            "petri_dish",
+            () -> new Item(new Item.Properties())));
+
+    // Plant Sample item (colored by the referenced plant/crop)
+    public static final RegistryObject<Item> PLANT_SAMPLE = addToTab(ITEMS.register(
+            "plant_sample",
+            () -> new PlantSampleItem(new Item.Properties())));
 }
